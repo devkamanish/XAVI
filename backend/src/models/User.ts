@@ -33,7 +33,7 @@ const userSchema = new Schema<IUser>(
   { timestamps: true }
 );
 
-// Don't return password in JSON responses
+
 userSchema.methods.toJSON = function () {
   const user = this.toObject();
   delete user.password;

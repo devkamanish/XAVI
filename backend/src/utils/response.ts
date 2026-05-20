@@ -1,6 +1,6 @@
 import { Response } from "express";
 
-// Standardized API response format
+
 export const sendSuccess = (res: Response, data: any, message = "Success", statusCode = 200) => {
   return res.status(statusCode).json({
     success: true,

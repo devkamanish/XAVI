@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import Activity from "../models/Activity";
 import { sendSuccess, sendError, sendPaginated } from "../utils/response";
 
-// GET /api/activities - Get activity timeline for org
+
 export const getActivities = async (req: Request, res: Response) => {
   try {
     const orgId = req.orgId!;

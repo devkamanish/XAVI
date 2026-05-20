@@ -4,7 +4,7 @@ import Incident from "../models/Incident";
 import Activity from "../models/Activity";
 import { sendSuccess, sendError, sendPaginated } from "../utils/response";
 
-// POST /api/incidents - Create a new incident
+
 export const createIncident = async (req: Request, res: Response) => {
   try {
     const { title, description, severity, status, tags, assignee, dueDate } = req.body;
@@ -22,7 +22,7 @@ export const createIncident = async (req: Request, res: Response) => {
       dueDate: dueDate ? new Date(dueDate) : null,
     });
 
-    // Log activity
+    
     await Activity.create({
       action: "incident_created",
       details: `${req.user.name} created incident "${title}"`,
@@ -31,11 +31,11 @@ export const createIncident = async (req: Request, res: Response) => {
       organization: orgId,
     });
 
-    // Populate references before sending
+    
     await incident.populate("reporter", "name email");
     await incident.populate("assignee", "name email");
 
-    // Emit real-time event
+    
     const io = req.app.get("io");
     if (io) {
       io.to(orgId).emit("incident:created", incident);
@@ -48,7 +48,7 @@ export const createIncident = async (req: Request, res: Response) => {
   }
 };
 
-// GET /api/incidents - List incidents with filters, search, pagination, sorting
+
 export const getIncidents = async (req: Request, res: Response) => {
   try {
     const orgId = req.orgId!;
@@ -69,11 +69,11 @@ export const getIncidents = async (req: Request, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string) || 10, 50);
     const skip = (pageNum - 1) * limitNum;
 
-    // Build filter query - always scoped to organization
+    
     const filter: any = { organization: orgId };
 
     if (status) {
-      // Support multiple statuses: "open,in_progress"
+      
       const statuses = (status as string).split(",");
       filter.status = { $in: statuses };
     }
@@ -92,7 +92,8 @@ export const getIncidents = async (req: Request, res: Response) => {
     }
 
     if (search) {
-      filter.title = { $regex: search, $options: "i" };
+      const escapedSearch = (search as string).replace(/[|\\{}()[\]^$+*?.]/g, "\\$&");
+      filter.title = { $regex: escapedSearch, $options: "i" };
     }
 
     if (startDate || endDate) {
@@ -101,7 +102,7 @@ export const getIncidents = async (req: Request, res: Response) => {
       if (endDate) filter.createdAt.$lte = new Date(endDate as string);
     }
 
-    // Build sort
+    
     const sort: any = {};
     sort[sortBy as string] = sortOrder === "asc" ? 1 : -1;
 
@@ -122,7 +123,7 @@ export const getIncidents = async (req: Request, res: Response) => {
   }
 };
 
-// GET /api/incidents/:id - Get single incident
+
 export const getIncident = async (req: Request, res: Response) => {
   try {
     const incident = await Incident.findOne({
@@ -142,13 +143,13 @@ export const getIncident = async (req: Request, res: Response) => {
   }
 };
 
-// PATCH /api/incidents/:id - Update incident
+
 export const updateIncident = async (req: Request, res: Response) => {
   try {
     const orgId = req.orgId!;
     const incidentId = req.params.id;
 
-    // Find existing incident first (for activity logging)
+    
     const existingIncident = await Incident.findOne({
       _id: incidentId,
       organization: orgId,
@@ -160,12 +161,12 @@ export const updateIncident = async (req: Request, res: Response) => {
 
     const updates = req.body;
 
-    // Track what changed for activity log
+    
     const changes: string[] = [];
 
     if (updates.status && updates.status !== existingIncident.status) {
       changes.push(`status from "${existingIncident.status}" to "${updates.status}"`);
-      // Set resolvedAt when status becomes resolved or closed
+      
       if (["resolved", "closed"].includes(updates.status) && !existingIncident.resolvedAt) {
         updates.resolvedAt = new Date();
       }
@@ -187,7 +188,7 @@ export const updateIncident = async (req: Request, res: Response) => {
       updates.dueDate = updates.dueDate ? new Date(updates.dueDate) : null;
     }
 
-    // Update with optimistic concurrency (using __v)
+    
     const incident = await Incident.findOneAndUpdate(
       { _id: incidentId, organization: orgId, __v: existingIncident.__v },
       { $set: updates, $inc: { __v: 1 } },
@@ -197,7 +198,7 @@ export const updateIncident = async (req: Request, res: Response) => {
       .populate("assignee", "name email");
 
     if (!incident) {
-      // Check if it was a concurrency issue or if it was actually deleted
+      
       const checkExists = await Incident.findById(incidentId);
       if (checkExists) {
         return sendError(res, "Incident was modified concurrently by another user. Please refresh and try again.", 409);
@@ -205,7 +206,7 @@ export const updateIncident = async (req: Request, res: Response) => {
       return sendError(res, "Incident not found", 404);
     }
 
-    // Log activity for each change
+    
     for (const change of changes) {
       await Activity.create({
         action: change.startsWith("status") ? "status_changed" :
@@ -219,12 +220,12 @@ export const updateIncident = async (req: Request, res: Response) => {
       });
     }
 
-    // Emit real-time event
+    
     const io = req.app.get("io");
     if (io) {
       io.to(orgId).emit("incident:updated", incident);
 
-      // Specific events for status and assignment changes
+      
       if (changes.some(c => c.startsWith("status"))) {
         io.to(orgId).emit("incident:statusChanged", {
           incidentId,
@@ -248,7 +249,7 @@ export const updateIncident = async (req: Request, res: Response) => {
   }
 };
 
-// DELETE /api/incidents/:id - Delete incident (admin/manager only)
+
 export const deleteIncident = async (req: Request, res: Response) => {
   try {
     const incident = await Incident.findOneAndDelete({
@@ -260,7 +261,7 @@ export const deleteIncident = async (req: Request, res: Response) => {
       return sendError(res, "Incident not found", 404);
     }
 
-    // Log activity
+    
     await Activity.create({
       action: "incident_deleted",
       details: `${req.user.name} deleted incident "${incident.title}"`,

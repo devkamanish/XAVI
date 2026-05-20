@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 
-// Debounce hook for search input
+
 export function useDebounce<T>(value: T, delay: number = 300): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
@@ -12,7 +12,7 @@ export function useDebounce<T>(value: T, delay: number = 300): T {
   return debouncedValue;
 }
 
-// Hook for click outside detection (closing dropdowns, modals)
+
 export function useClickOutside(callback: () => void) {
   const ref = useRef<HTMLDivElement>(null);
 

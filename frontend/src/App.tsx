@@ -44,11 +44,11 @@ const App: React.FC = () => {
             />
 
             <Routes>
-              {/* Public Routes */}
+              {}
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
 
-              {/* Protected Routes */}
+              {}
               <Route
                 path="/"
                 element={
@@ -67,7 +67,7 @@ const App: React.FC = () => {
                 <Route path="settings" element={<SettingsPage />} />
               </Route>
 
-              {/* Catch all */}
+              {}
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
           </SocketProvider>

@@ -3,7 +3,7 @@ import { verifyAccessToken } from "../utils/jwt";
 import User from "../models/User";
 import { sendError } from "../utils/response";
 
-// Extend Express Request to include user
+
 declare global {
   namespace Express {
     interface Request {

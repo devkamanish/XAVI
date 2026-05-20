@@ -16,7 +16,7 @@ import { sendError } from "../utils/response";
 const router = Router();
 router.use(authenticate);
 
-// Middleware: check user's role in the org from URL param
+
 const requireOrgRole = (...allowedRoles: string[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {

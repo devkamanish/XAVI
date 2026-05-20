@@ -36,7 +36,7 @@ export const OrgProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (data.success) {
         setOrganizations(data.data.organizations);
 
-        // Restore last selected org or select first one
+        
         const savedOrgId = localStorage.getItem("currentOrgId");
         const savedOrg = data.data.organizations.find(
           (o: OrgWithRole) => o.organization._id === savedOrgId
@@ -76,13 +76,13 @@ export const OrgProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const createOrg = async (name: string, description?: string) => {
     const { data } = await api.post("/orgs", { name, description });
     if (data.success) {
-      // Fetch updated org list
+      
       const orgsRes = await api.get("/orgs");
       if (orgsRes.data.success) {
         const newOrgs = orgsRes.data.data.organizations;
         setOrganizations(newOrgs);
 
-        // Find and switch to the newly created org
+        
         const newOrg = newOrgs.find(
           (o: OrgWithRole) => o.organization._id === data.data.organization._id
         );

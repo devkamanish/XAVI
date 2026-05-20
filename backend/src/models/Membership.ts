@@ -37,7 +37,7 @@ const membershipSchema = new Schema<IMembership>(
   { timestamps: true }
 );
 
-// One user can only have one membership per organization
+
 membershipSchema.index({ user: 1, organization: 1 }, { unique: true });
 
 export default mongoose.model<IMembership>("Membership", membershipSchema);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Save, AlertTriangle, FileText, Tag, User, Calendar, Activity } from "lucide-react";
 import api from "../services/api";
 import { useOrg } from "../context/OrgContext";
 import type { Incident, Severity, IncidentStatus } from "../types";
@@ -24,12 +24,10 @@ const IncidentFormPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(isEditing);
 
-  // Fetch members for assignee dropdown
   useEffect(() => {
     fetchMembers();
   }, [fetchMembers]);
 
-  // Fetch existing incident if editing
   useEffect(() => {
     if (!isEditing) return;
     const fetchIncident = async () => {
@@ -57,7 +55,9 @@ const IncidentFormPage: React.FC = () => {
     fetchIncident();
   }, [id, isEditing, navigate]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -102,32 +102,46 @@ const IncidentFormPage: React.FC = () => {
 
   if (fetching) {
     return (
-      <div className="flex justify-center py-20">
-        <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="text-center space-y-4">
+          <div className="w-10 h-10 border-2 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-slate-500 text-sm">Loading incident...</p>
+        </div>
       </div>
     );
   }
 
+  const inputClass = "input-base";
+  const labelClass = "block text-sm font-semibold text-slate-300 mb-2";
+
   return (
-    <div className="max-w-3xl mx-auto space-y-6 animate-fadeIn">
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Back
-      </button>
+    <div className="max-w-3xl space-y-8 animate-fadeIn">
+      {}
+      <div className="page-header">
+        <div>
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-1.5 text-slate-500 hover:text-slate-200 transition-colors text-xs font-medium mb-1 group"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 group-hover:text-primary-400 transition-colors" />
+            Back
+          </button>
+          <h1 className="page-title">{isEditing ? "Edit Incident" : "Create Incident"}</h1>
+          <p className="page-subtitle">
+            {isEditing ? "Update incident details" : "Fill in the details below"}
+          </p>
+        </div>
+      </div>
 
-      <div className="glass rounded-xl p-6">
-        <h1 className="text-xl font-bold text-white mb-6">
-          {isEditing ? "Edit Incident" : "Create New Incident"}
-        </h1>
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Title */}
+      <div className="card">
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {}
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-slate-300 mb-1.5">
-              Title <span className="text-red-400">*</span>
+            <label htmlFor="title" className={labelClass}>
+              <span className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-slate-500" />
+                Title <span className="text-red-400 ml-0.5">*</span>
+              </span>
             </label>
             <input
               id="title"
@@ -135,59 +149,67 @@ const IncidentFormPage: React.FC = () => {
               type="text"
               value={form.title}
               onChange={handleChange}
-              placeholder="Brief description of the incident"
-              className="w-full px-4 py-2.5 rounded-lg bg-surface border border-border text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/40 text-sm"
+              placeholder="Brief, clear description of the incident"
+              className={inputClass}
               required
             />
           </div>
 
-          {/* Description */}
+          {}
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-slate-300 mb-1.5">
-              Description
+            <label htmlFor="description" className={labelClass}>
+              <span className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-slate-500" />
+                Description
+              </span>
             </label>
             <textarea
               id="description"
               name="description"
               value={form.description}
               onChange={handleChange}
-              placeholder="Detailed description of the incident..."
-              rows={5}
-              className="w-full px-4 py-2.5 rounded-lg bg-surface border border-border text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/40 text-sm resize-none"
+              placeholder="Detailed description of the incident, steps to reproduce, impact..."
+              rows={6}
+              className={`${inputClass} resize-none leading-relaxed`}
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {/* Severity */}
+          {}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="severity" className="block text-sm font-medium text-slate-300 mb-1.5">
-                Severity
+              <label htmlFor="severity" className={labelClass}>
+                <span className="flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-slate-500" />
+                  Severity
+                </span>
               </label>
               <select
                 id="severity"
                 name="severity"
                 value={form.severity}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 rounded-lg bg-surface border border-border text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/40 text-sm"
+                className={inputClass}
               >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-                <option value="critical">Critical</option>
+                <option value="low">🟢 Low</option>
+                <option value="medium">🟡 Medium</option>
+                <option value="high">🟠 High</option>
+                <option value="critical">🔴 Critical</option>
               </select>
             </div>
 
-            {/* Status */}
             <div>
-              <label htmlFor="status" className="block text-sm font-medium text-slate-300 mb-1.5">
-                Status
+              <label htmlFor="status" className={labelClass}>
+                <span className="flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-slate-500" />
+                  Status
+                </span>
               </label>
               <select
                 id="status"
                 name="status"
                 value={form.status}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 rounded-lg bg-surface border border-border text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/40 text-sm"
+                className={inputClass}
               >
                 <option value="open">Open</option>
                 <option value="in_progress">In Progress</option>
@@ -196,17 +218,20 @@ const IncidentFormPage: React.FC = () => {
               </select>
             </div>
 
-            {/* Assignee */}
+            {}
             <div>
-              <label htmlFor="assignee" className="block text-sm font-medium text-slate-300 mb-1.5">
-                Assignee
+              <label htmlFor="assignee" className={labelClass}>
+                <span className="flex items-center gap-2">
+                  <User className="w-4 h-4 text-slate-500" />
+                  Assignee
+                </span>
               </label>
               <select
                 id="assignee"
                 name="assignee"
                 value={form.assignee}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 rounded-lg bg-surface border border-border text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/40 text-sm"
+                className={inputClass}
               >
                 <option value="">Unassigned</option>
                 {members.map((m) => (
@@ -217,10 +242,13 @@ const IncidentFormPage: React.FC = () => {
               </select>
             </div>
 
-            {/* Due Date */}
+            {}
             <div>
-              <label htmlFor="dueDate" className="block text-sm font-medium text-slate-300 mb-1.5">
-                Due Date
+              <label htmlFor="dueDate" className={labelClass}>
+                <span className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-slate-500" />
+                  Due Date
+                </span>
               </label>
               <input
                 id="dueDate"
@@ -228,15 +256,19 @@ const IncidentFormPage: React.FC = () => {
                 type="date"
                 value={form.dueDate}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 rounded-lg bg-surface border border-border text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/40 text-sm"
+                className={inputClass}
               />
             </div>
           </div>
 
-          {/* Tags */}
+          {}
           <div>
-            <label htmlFor="tags" className="block text-sm font-medium text-slate-300 mb-1.5">
-              Tags <span className="text-slate-500 text-xs">(comma separated)</span>
+            <label htmlFor="tags" className={labelClass}>
+              <span className="flex items-center gap-2">
+                <Tag className="w-4 h-4 text-slate-500" />
+                Tags
+                <span className="text-slate-600 text-xs font-normal">(comma separated)</span>
+              </span>
             </label>
             <input
               id="tags"
@@ -244,17 +276,27 @@ const IncidentFormPage: React.FC = () => {
               type="text"
               value={form.tags}
               onChange={handleChange}
-              placeholder="e.g., backend, api, urgent"
-              className="w-full px-4 py-2.5 rounded-lg bg-surface border border-border text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/40 text-sm"
+              placeholder="e.g., backend, api, urgent, database"
+              className={inputClass}
             />
+            {form.tags && (
+              <div className="flex gap-2 flex-wrap mt-3">
+                {form.tags.split(",").map((t) => t.trim()).filter(Boolean).map((tag) => (
+                  <span key={tag} className="tag-chip text-xs">
+                    <Tag className="w-3 h-3" />
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Submit Button */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-border">
+          {}
+          <div className="flex justify-end gap-3 pt-6 border-t border-border/40 mt-2">
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="px-4 py-2.5 rounded-lg border border-border text-slate-300 hover:bg-surface-lighter text-sm transition-colors"
+              className="btn btn-secondary"
             >
               Cancel
             </button>
@@ -262,7 +304,7 @@ const IncidentFormPage: React.FC = () => {
               id="save-incident-btn"
               type="submit"
               disabled={loading}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gradient-to-r from-primary-600 to-primary-500 text-white font-medium text-sm hover:from-primary-500 hover:to-primary-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-primary-500/20"
+              className="btn btn-primary"
             >
               <Save className="w-4 h-4" />
               {loading ? "Saving..." : isEditing ? "Update Incident" : "Create Incident"}

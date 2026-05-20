@@ -1,4 +1,4 @@
-// ============ User Types ============
+
 export interface User {
   _id: string;
   name: string;
@@ -7,14 +7,14 @@ export interface User {
   updatedAt: string;
 }
 
-// ============ Auth Types ============
+
 export interface AuthResponse {
   user: User;
   accessToken: string;
   refreshToken: string;
 }
 
-// ============ Organization Types ============
+
 export interface Organization {
   _id: string;
   name: string;
@@ -41,7 +41,7 @@ export interface OrgWithRole {
   role: Role;
 }
 
-// ============ Incident Types ============
+
 export type Severity = "critical" | "high" | "medium" | "low";
 export type IncidentStatus = "open" | "in_progress" | "resolved" | "closed";
 
@@ -75,7 +75,7 @@ export interface IncidentFilters {
   endDate?: string;
 }
 
-// ============ Comment Types ============
+
 export interface Comment {
   _id: string;
   content: string;
@@ -86,7 +86,7 @@ export interface Comment {
   updatedAt: string;
 }
 
-// ============ Activity Types ============
+
 export interface Activity {
   _id: string;
   action: string;
@@ -98,7 +98,7 @@ export interface Activity {
   createdAt: string;
 }
 
-// ============ Dashboard Types ============
+
 export interface DashboardStats {
   overview: {
     total: number;
@@ -124,7 +124,7 @@ export interface DashboardStats {
   incidentTrend: { _id: string; count: number }[];
 }
 
-// ============ API Response Types ============
+
 export interface ApiResponse<T> {
   success: boolean;
   message: string;

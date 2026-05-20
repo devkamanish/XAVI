@@ -4,12 +4,12 @@ import Incident from "../models/Incident";
 import Activity from "../models/Activity";
 import { sendSuccess, sendError } from "../utils/response";
 
-// GET /api/dashboard/stats - Dashboard analytics using aggregation pipelines
+
 export const getDashboardStats = async (req: Request, res: Response) => {
   try {
     const orgId = new mongoose.Types.ObjectId(req.orgId!);
 
-    // Run all aggregations in parallel for performance
+    
     const [
       statusCounts,
       severityCounts,
@@ -18,19 +18,19 @@ export const getDashboardStats = async (req: Request, res: Response) => {
       recentActivity,
       incidentTrend,
     ] = await Promise.all([
-      // 1. Incidents grouped by status
+      
       Incident.aggregate([
         { $match: { organization: orgId } },
         { $group: { _id: "$status", count: { $sum: 1 } } },
       ]),
 
-      // 2. Incidents grouped by severity
+      
       Incident.aggregate([
         { $match: { organization: orgId } },
         { $group: { _id: "$severity", count: { $sum: 1 } } },
       ]),
 
-      // 3. Average resolution time (for resolved/closed incidents)
+      
       Incident.aggregate([
         {
           $match: {
@@ -53,7 +53,7 @@ export const getDashboardStats = async (req: Request, res: Response) => {
         },
       ]),
 
-      // 4. Most active users (by number of activities)
+      
       Activity.aggregate([
         { $match: { organization: orgId } },
         { $group: { _id: "$user", activityCount: { $sum: 1 } } },
@@ -78,14 +78,14 @@ export const getDashboardStats = async (req: Request, res: Response) => {
         },
       ]),
 
-      // 5. Recent activity (last 10)
+      
       Activity.find({ organization: orgId })
         .populate("user", "name email")
         .populate("incident", "title")
         .sort({ createdAt: -1 })
         .limit(10),
 
-      // 6. Incidents created per day (last 30 days)
+      
       Incident.aggregate([
         {
           $match: {
@@ -107,7 +107,7 @@ export const getDashboardStats = async (req: Request, res: Response) => {
       ]),
     ]);
 
-    // Format the data nicely
+    
     const statusMap: Record<string, number> = {};
     statusCounts.forEach((s: any) => (statusMap[s._id] = s.count));
 
@@ -116,7 +116,7 @@ export const getDashboardStats = async (req: Request, res: Response) => {
 
     const totalIncidents = Object.values(statusMap).reduce((sum, count) => sum + count, 0);
 
-    // Average resolution time in hours
+    
     const avgResTimeMs = avgResolutionTime[0]?.avgTime || 0;
     const avgResTimeHours = Math.round(avgResTimeMs / (1000 * 60 * 60) * 10) / 10;
 

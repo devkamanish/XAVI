@@ -1,13 +1,13 @@
 import axios from "axios";
 import toast from "react-hot-toast";
 
-// Create axios instance
+
 const api = axios.create({
   baseURL: "/api",
   headers: { "Content-Type": "application/json" },
 });
 
-// Request interceptor - attach access token and org ID
+
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("accessToken");
   if (token) {
@@ -22,13 +22,13 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Response interceptor - handle token refresh on 401
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // If 401 and we haven't tried refresh yet
+    
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
@@ -44,7 +44,7 @@ api.interceptors.response.use(
             return api(originalRequest);
           }
         } catch (refreshError) {
-          // Refresh failed - clear tokens and redirect to login
+          
           localStorage.removeItem("accessToken");
           localStorage.removeItem("refreshToken");
           localStorage.removeItem("currentOrgId");
@@ -52,13 +52,13 @@ api.interceptors.response.use(
           return Promise.reject(refreshError);
         }
       } else {
-        // No refresh token - redirect to login
+        
         localStorage.removeItem("accessToken");
         window.location.href = "/login";
       }
     }
 
-    // Show error toast for non-401 errors
+    
     if (error.response?.status !== 401) {
       const message = error.response?.data?.message || "Something went wrong";
       toast.error(message);

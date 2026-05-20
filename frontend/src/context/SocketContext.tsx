@@ -17,10 +17,12 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    // Connect socket
+    
     if (!socketRef.current) {
+      const token = localStorage.getItem("accessToken");
       socketRef.current = io(window.location.origin, {
         transports: ["websocket", "polling"],
+        auth: { token },
       });
     }
 
@@ -32,7 +34,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
   }, [isAuthenticated]);
 
-  // Join/leave org rooms when switching orgs
+  
   useEffect(() => {
     const socket = socketRef.current;
     if (!socket || !currentOrg) return;

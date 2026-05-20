@@ -78,7 +78,7 @@ const incidentSchema = new Schema<IIncident>(
   { timestamps: true }
 );
 
-// Index for fast queries within an organization
+
 incidentSchema.index({ organization: 1, status: 1 });
 incidentSchema.index({ organization: 1, severity: 1 });
 incidentSchema.index({ organization: 1, assignee: 1 });

@@ -5,12 +5,12 @@ import User from "../models/User";
 import Activity from "../models/Activity";
 import { sendSuccess, sendError } from "../utils/response";
 
-// POST /api/orgs - Create a new organization
+
 export const createOrg = async (req: Request, res: Response) => {
   try {
     const { name, description } = req.body;
 
-    // Generate slug from name
+    
     const slug = name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
@@ -24,7 +24,7 @@ export const createOrg = async (req: Request, res: Response) => {
       owner: req.user._id,
     });
 
-    // Creator becomes admin automatically
+    
     await Membership.create({
       user: req.user._id,
       organization: org._id,
@@ -32,7 +32,7 @@ export const createOrg = async (req: Request, res: Response) => {
       status: "active",
     });
 
-    // Log activity
+    
     await Activity.create({
       action: "org_created",
       details: `${req.user.name} created organization "${name}"`,
@@ -47,7 +47,7 @@ export const createOrg = async (req: Request, res: Response) => {
   }
 };
 
-// GET /api/orgs - Get all orgs user belongs to
+
 export const getMyOrgs = async (req: Request, res: Response) => {
   try {
     const memberships = await Membership.find({
@@ -66,7 +66,7 @@ export const getMyOrgs = async (req: Request, res: Response) => {
   }
 };
 
-// GET /api/orgs/:orgId - Get org details
+
 export const getOrgDetails = async (req: Request, res: Response) => {
   try {
     const org = await Organization.findById(req.params.orgId).populate("owner", "name email");
@@ -75,7 +75,7 @@ export const getOrgDetails = async (req: Request, res: Response) => {
       return sendError(res, "Organization not found", 404);
     }
 
-    // Check if user is a member
+    
     const membership = await Membership.findOne({
       user: req.user._id,
       organization: org._id,
@@ -86,7 +86,7 @@ export const getOrgDetails = async (req: Request, res: Response) => {
       return sendError(res, "You don't have access to this organization", 403);
     }
 
-    // Get all members
+    
     const members = await Membership.find({
       organization: org._id,
     }).populate("user", "name email");
@@ -101,13 +101,13 @@ export const getOrgDetails = async (req: Request, res: Response) => {
   }
 };
 
-// POST /api/orgs/:orgId/invite - Invite a user
+
 export const inviteUser = async (req: Request, res: Response) => {
   try {
     const { email, role } = req.body;
     const orgId = req.params.orgId;
 
-    // Check the inviter's membership (must be admin or manager)
+    
     const inviterMembership = await Membership.findOne({
       user: req.user._id,
       organization: orgId,
@@ -118,13 +118,13 @@ export const inviteUser = async (req: Request, res: Response) => {
       return sendError(res, "Only admins and managers can invite users", 403);
     }
 
-    // Find the user to invite
+    
     const userToInvite = await User.findOne({ email });
     if (!userToInvite) {
       return sendError(res, "User with this email not found. They need to sign up first.", 404);
     }
 
-    // Check for duplicate invite
+    
     const existingMembership = await Membership.findOne({
       user: userToInvite._id,
       organization: orgId,
@@ -134,15 +134,15 @@ export const inviteUser = async (req: Request, res: Response) => {
       return sendError(res, "User is already a member or has been invited", 409);
     }
 
-    // Create membership
+    
     const membership = await Membership.create({
       user: userToInvite._id,
       organization: orgId,
       role: role || "developer",
-      status: "active", // Direct join for simplicity
+      status: "active", 
     });
 
-    // Log activity
+    
     await Activity.create({
       action: "user_invited",
       details: `${req.user.name} invited ${userToInvite.name} as ${role || "developer"}`,
@@ -157,13 +157,13 @@ export const inviteUser = async (req: Request, res: Response) => {
   }
 };
 
-// PATCH /api/orgs/:orgId/members/:memberId/role - Update member role
+
 export const updateMemberRole = async (req: Request, res: Response) => {
   try {
     const { orgId, memberId } = req.params;
     const { role } = req.body;
 
-    // Check inviter is admin
+    
     const inviterMembership = await Membership.findOne({
       user: req.user._id,
       organization: orgId,
@@ -186,8 +186,8 @@ export const updateMemberRole = async (req: Request, res: Response) => {
     }
 
     await Activity.create({
-      action: "user_invited", // Using an existing valid action type, or org_updated
-      details: `${req.user.name} changed role of ${membership.user.name} to ${role}`,
+      action: "user_invited", 
+      details: `${req.user.name} changed role of ${(membership.user as any).name} to ${role}`,
       user: req.user._id,
       organization: orgId,
     });
@@ -198,7 +198,7 @@ export const updateMemberRole = async (req: Request, res: Response) => {
   }
 };
 
-// DELETE /api/orgs/:orgId/members/:memberId - Remove member
+
 export const removeMember = async (req: Request, res: Response) => {
   try {
     const { orgId, memberId } = req.params;
@@ -224,7 +224,7 @@ export const removeMember = async (req: Request, res: Response) => {
     }
 
     await Activity.create({
-      action: "user_invited", // General org activity action
+      action: "user_invited", 
       details: `${req.user.name} removed a member from the organization`,
       user: req.user._id,
       organization: orgId,

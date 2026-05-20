@@ -15,8 +15,8 @@ const activitySchema = new Schema<IActivity>(
     action: {
       type: String,
       required: true,
-      // Examples: "incident_created", "status_changed", "severity_changed",
-      // "assignee_changed", "comment_added", "incident_closed"
+      
+      
     },
     details: {
       type: String,

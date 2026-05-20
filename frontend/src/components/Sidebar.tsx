@@ -39,104 +39,133 @@ const Sidebar: React.FC = () => {
   ];
 
   const sidebarContent = (
-    <div className="flex flex-col h-full">
-      {/* Logo */}
-      <div className="p-5 border-b border-border">
+    <div className="flex flex-col h-full overflow-hidden">
+
+      {}
+      <div className="px-6 py-6 border-b border-border/30 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-md shadow-primary-500/30 shrink-0">
             <Shield className="w-5 h-5 text-white" />
           </div>
-          <div>
-            <h1 className="text-lg font-bold text-white tracking-tight">XAVI</h1>
-            <p className="text-[10px] text-slate-400 -mt-0.5">Incident Management</p>
+          <div className="min-w-0">
+            <p className="text-base font-bold text-white leading-none tracking-tight">XAVI</p>
+            <p className="text-[11px] text-slate-500 mt-1.5 leading-none font-medium">Incident Platform</p>
           </div>
         </div>
       </div>
 
-      {/* Org Switcher */}
-      <div className="p-3 border-b border-border">
+      {}
+      <div className="px-5 py-4 border-b border-border/30 shrink-0">
         <div ref={dropdownRef} className="relative">
           <button
             id="org-switcher"
             onClick={() => setOrgDropdownOpen(!orgDropdownOpen)}
-            className="w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg bg-surface-lighter/50 hover:bg-surface-lighter transition-colors text-sm"
+            className="w-full flex items-center justify-between gap-2 px-3.5 py-3 rounded-xl bg-surface/50 hover:bg-surface-lighter/40 border border-border/40 hover:border-border/70 transition-all duration-200 group"
           >
-            <div className="flex items-center gap-2 min-w-0">
-              <Building2 className="w-4 h-4 text-primary-400 shrink-0" />
-              <span className="truncate text-slate-200">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-6 h-6 rounded-md bg-primary-500/20 flex items-center justify-center shrink-0">
+                <Building2 className="w-3.5 h-3.5 text-primary-400" />
+              </div>
+              <span className="truncate text-slate-200 font-semibold text-sm">
                 {currentOrg?.name || "Select Organization"}
               </span>
             </div>
-            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${orgDropdownOpen ? "rotate-180" : ""}`} />
+            <ChevronDown
+              className={`w-4 h-4 text-slate-500 transition-transform duration-200 shrink-0 ${
+                orgDropdownOpen ? "rotate-180" : ""
+              }`}
+            />
           </button>
 
           {orgDropdownOpen && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-surface-light border border-border rounded-lg shadow-xl z-50 overflow-hidden animate-fadeIn">
-              {organizations.map((o) => (
+            <div className="absolute top-full left-0 right-0 mt-1.5 bg-surface-light border border-border/60 rounded-xl shadow-2xl z-50 overflow-hidden animate-scaleIn">
+              <div className="py-1">
+                {organizations.map((o) => (
+                  <button
+                    key={o.organization._id}
+                    onClick={() => {
+                      switchOrg(o.organization._id);
+                      setOrgDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-4 py-3 text-sm hover:bg-surface-lighter/60 transition-colors flex items-center justify-between gap-2 ${
+                      currentOrg?._id === o.organization._id
+                        ? "text-primary-400 bg-primary-500/10"
+                        : "text-slate-300"
+                    }`}
+                  >
+                    <span className="truncate font-semibold">{o.organization.name}</span>
+                    <span className={`badge badge-${o.role} shrink-0 !text-[10px]`}>{o.role}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="border-t border-border/40">
                 <button
-                  key={o.organization._id}
                   onClick={() => {
-                    switchOrg(o.organization._id);
+                    navigate("/settings?tab=create");
                     setOrgDropdownOpen(false);
                   }}
-                  className={`w-full text-left px-3 py-2.5 text-sm hover:bg-surface-lighter transition-colors flex items-center justify-between ${
-                    currentOrg?._id === o.organization._id ? "text-primary-400 bg-primary-500/10" : "text-slate-300"
-                  }`}
+                  className="w-full text-left px-4 py-3 text-sm text-primary-400 hover:bg-surface-lighter/60 transition-colors flex items-center gap-2"
                 >
-                  <span className="truncate">{o.organization.name}</span>
-                  <span className={`badge badge-${o.role} !text-[10px] !py-0`}>{o.role}</span>
+                  <Plus className="w-3.5 h-3.5 shrink-0" />
+                  <span className="font-semibold">Create Organization</span>
                 </button>
-              ))}
-              <button
-                onClick={() => {
-                  navigate("/settings?tab=create");
-                  setOrgDropdownOpen(false);
-                }}
-                className="w-full text-left px-3 py-2.5 text-sm text-primary-400 hover:bg-surface-lighter transition-colors flex items-center gap-2 border-t border-border"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                Create Organization
-              </button>
+              </div>
             </div>
           )}
         </div>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 p-3 space-y-1">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            onClick={() => setMobileOpen(false)}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                isActive
-                  ? "bg-primary-600/20 text-primary-400 shadow-sm"
-                  : "text-slate-400 hover:text-slate-200 hover:bg-surface-lighter/50"
-              }`
-            }
-          >
-            <item.icon className="w-[18px] h-[18px]" />
-            {item.label}
-          </NavLink>
-        ))}
+      {}
+      <nav className="flex-1 px-5 pt-6 pb-4 overflow-y-auto">
+        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.12em] px-2.5 mb-3">
+          Menu
+        </p>
+        <div className="space-y-1.5">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              onClick={() => setMobileOpen(false)}
+              className={({ isActive }) =>
+                `flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-sm font-medium transition-all duration-200 group relative ${
+                  isActive
+                    ? "bg-primary-500/10 text-primary-300 border-l-2 border-primary-500"
+                    : "text-slate-400 hover:text-slate-100 hover:bg-surface-lighter/30 border-l-2 border-transparent"
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <item.icon
+                    className={`w-[17px] h-[17px] shrink-0 transition-colors ${
+                      isActive ? "text-primary-400" : "text-slate-500 group-hover:text-slate-300"
+                    }`}
+                  />
+                  <span className="leading-none">{item.label}</span>
+                  {isActive && (
+                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-400 shrink-0" />
+                  )}
+                </>
+              )}
+            </NavLink>
+          ))}
+        </div>
       </nav>
 
-      {/* User Section */}
-      <div className="p-3 border-t border-border">
-        <div className="flex items-center gap-3 px-3 py-2">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-sm font-semibold">
+      {}
+      <div className="px-5 py-4 border-t border-border/30 shrink-0">
+        <div className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-surface-lighter/20 transition-colors group cursor-default">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-sm font-bold shrink-0">
             {user?.name?.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-slate-200 truncate">{user?.name}</p>
-            <p className="text-[11px] text-slate-500 truncate">{user?.email}</p>
+            <p className="text-sm font-semibold text-slate-200 truncate leading-tight">{user?.name}</p>
+            <p className="text-[11px] text-slate-500 truncate mt-0.5">{user?.email}</p>
           </div>
           <button
             id="logout-btn"
             onClick={handleLogout}
-            className="p-1.5 rounded-lg hover:bg-red-500/10 text-slate-400 hover:text-red-400 transition-colors"
+            className="p-1.5 rounded-md hover:bg-red-500/15 text-slate-600 hover:text-red-400 transition-all duration-200 shrink-0 opacity-0 group-hover:opacity-100"
             title="Logout"
           >
             <LogOut className="w-4 h-4" />
@@ -148,22 +177,25 @@ const Sidebar: React.FC = () => {
 
   return (
     <>
-      {/* Mobile toggle */}
+      {}
       <button
         onClick={() => setMobileOpen(!mobileOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-surface-light border border-border text-slate-300"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-surface-light border border-border text-slate-400 hover:text-white transition-colors"
       >
         {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </button>
 
-      {/* Mobile overlay */}
+      {}
       {mobileOpen && (
-        <div className="lg:hidden fixed inset-0 bg-black/60 z-40" onClick={() => setMobileOpen(false)} />
+        <div
+          className="lg:hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-40"
+          onClick={() => setMobileOpen(false)}
+        />
       )}
 
-      {/* Sidebar */}
+      {}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-40 w-64 bg-surface-light border-r border-border transition-transform lg:translate-x-0 ${
+        className={`fixed lg:static inset-y-0 left-0 z-40 w-60 bg-surface-light border-r border-border/40 transition-transform duration-300 lg:translate-x-0 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >

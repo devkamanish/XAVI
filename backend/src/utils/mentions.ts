@@ -1,4 +1,4 @@
-// Parse @email mentions from comment content
+
 export const parseMentions = (content: string): string[] => {
   const mentionRegex = /@([\w.-]+@[\w.-]+\.\w+)/g;
   const mentions: string[] = [];
@@ -8,6 +8,6 @@ export const parseMentions = (content: string): string[] => {
     mentions.push(match[1].toLowerCase());
   }
 
-  // Remove duplicates
+  
   return [...new Set(mentions)];
 };

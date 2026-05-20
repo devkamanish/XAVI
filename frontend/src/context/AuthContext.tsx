@@ -17,7 +17,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Check if user is logged in on mount
+  
   const checkAuth = useCallback(async () => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -65,7 +65,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await api.post("/auth/logout", { refreshToken });
     } catch {
-      // Logout even if API call fails
+      
     }
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");

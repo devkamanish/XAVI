@@ -19,10 +19,12 @@ import {
 import multer from "multer";
 import path from "path";
 
-// File upload config
+
+const uploadsDir = path.join(__dirname, "..", "..", "uploads");
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/");
+    cb(null, uploadsDir);
   },
   filename: (req, file, cb) => {
     const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(file.originalname)}`;
@@ -32,22 +34,22 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  limits: { fileSize: 5 * 1024 * 1024 }, 
 });
 
 const router = Router();
 
-// All incident routes require auth + org context
+
 router.use(authenticate, requireOrg);
 
-// Incident CRUD
+
 router.post("/", validate(createIncidentSchema), createIncident);
 router.get("/", validateQuery(incidentQuerySchema), getIncidents);
 router.get("/:id", getIncident);
 router.patch("/:id", validate(updateIncidentSchema), updateIncident);
 router.delete("/:id", requireRole("admin", "manager"), deleteIncident);
 
-// File upload endpoint
+
 router.post("/:id/upload", upload.array("files", 5), async (req, res) => {
   try {
     const files = req.files as Express.Multer.File[];
@@ -79,7 +81,7 @@ router.post("/:id/upload", upload.array("files", 5), async (req, res) => {
   }
 });
 
-// Comment routes (nested under incidents)
+
 router.post("/:incidentId/comments", validate(createCommentSchema), addComment);
 router.get("/:incidentId/comments", getComments);
 router.delete("/:incidentId/comments/:commentId", deleteComment);

@@ -2,8 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import Membership, { Role } from "../models/Membership";
 import { sendError } from "../utils/response";
 
-// Middleware to check if user belongs to the organization
-// and attach their membership/role to the request
+
+
 export const requireOrg = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const orgId = req.headers["x-org-id"] as string;
@@ -22,7 +22,7 @@ export const requireOrg = async (req: Request, res: Response, next: NextFunction
       return sendError(res, "You don't have access to this organization", 403);
     }
 
-    // Attach org context to request
+    
     req.orgId = orgId;
     req.userRole = membership.role;
 
@@ -32,7 +32,7 @@ export const requireOrg = async (req: Request, res: Response, next: NextFunction
   }
 };
 
-// Middleware factory to check if user has required role
+
 export const requireRole = (...allowedRoles: Role[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.userRole) {
@@ -47,7 +47,7 @@ export const requireRole = (...allowedRoles: Role[]) => {
   };
 };
 
-// Extend Express Request
+
 declare global {
   namespace Express {
     interface Request {

@@ -5,7 +5,7 @@ export interface IComment extends Document {
   author: mongoose.Types.ObjectId;
   incident: mongoose.Types.ObjectId;
   organization: mongoose.Types.ObjectId;
-  mentions: string[]; // array of emails mentioned with @
+  mentions: string[]; 
   createdAt: Date;
   updatedAt: Date;
 }

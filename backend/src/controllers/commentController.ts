@@ -5,14 +5,14 @@ import Incident from "../models/Incident";
 import { sendSuccess, sendError } from "../utils/response";
 import { parseMentions } from "../utils/mentions";
 
-// POST /api/incidents/:incidentId/comments
+
 export const addComment = async (req: Request, res: Response) => {
   try {
     const { incidentId } = req.params;
     const { content } = req.body;
     const orgId = req.orgId!;
 
-    // Check incident exists and belongs to org
+    
     const incident = await Incident.findOne({
       _id: incidentId,
       organization: orgId,
@@ -22,7 +22,7 @@ export const addComment = async (req: Request, res: Response) => {
       return sendError(res, "Incident not found", 404);
     }
 
-    // Parse @email mentions
+    
     const mentions = parseMentions(content);
 
     const comment = await Comment.create({
@@ -35,7 +35,7 @@ export const addComment = async (req: Request, res: Response) => {
 
     await comment.populate("author", "name email");
 
-    // Log activity
+    
     await Activity.create({
       action: "comment_added",
       details: `${req.user.name} commented on "${incident.title}"`,
@@ -45,7 +45,7 @@ export const addComment = async (req: Request, res: Response) => {
       metadata: { mentions },
     });
 
-    // Emit real-time event
+    
     const io = req.app.get("io");
     if (io) {
       io.to(orgId).emit("comment:added", {
@@ -61,7 +61,7 @@ export const addComment = async (req: Request, res: Response) => {
   }
 };
 
-// GET /api/incidents/:incidentId/comments
+
 export const getComments = async (req: Request, res: Response) => {
   try {
     const { incidentId } = req.params;
@@ -72,7 +72,7 @@ export const getComments = async (req: Request, res: Response) => {
       organization: orgId,
     })
       .populate("author", "name email")
-      .sort({ createdAt: 1 }); // oldest first
+      .sort({ createdAt: 1 }); 
 
     return sendSuccess(res, { comments });
   } catch (error) {
@@ -80,7 +80,7 @@ export const getComments = async (req: Request, res: Response) => {
   }
 };
 
-// DELETE /api/incidents/:incidentId/comments/:commentId
+
 export const deleteComment = async (req: Request, res: Response) => {
   try {
     const { incidentId, commentId } = req.params;
@@ -96,7 +96,7 @@ export const deleteComment = async (req: Request, res: Response) => {
       return sendError(res, "Comment not found", 404);
     }
 
-    // Only author, admin, or manager can delete
+    
     const isAuthor = comment.author.toString() === req.user._id.toString();
     const isPrivileged = ["admin", "manager"].includes(req.userRole!);
 

@@ -2,11 +2,11 @@ import { Request, Response, NextFunction } from "express";
 import { ZodSchema, ZodError } from "zod";
 import { sendError } from "../utils/response";
 
-// Generic validation middleware using Zod
+
 export const validate = (schema: ZodSchema) => {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
-      schema.parse(req.body);
+      req.body = schema.parse(req.body);
       next();
     } catch (error) {
       if (error instanceof ZodError) {
@@ -21,11 +21,11 @@ export const validate = (schema: ZodSchema) => {
   };
 };
 
-// Validate query parameters
+
 export const validateQuery = (schema: ZodSchema) => {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
-      schema.parse(req.query);
+      req.query = schema.parse(req.query);
       next();
     } catch (error) {
       if (error instanceof ZodError) {
@@ -39,3 +39,4 @@ export const validateQuery = (schema: ZodSchema) => {
     }
   };
 };
+
