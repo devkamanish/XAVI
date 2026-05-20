@@ -67,12 +67,23 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/activities", activityRoutes);
 
 
-app.get("/", (req, res) => {
-  res.json({ success: true, message: "Welcome to XAVI API. API endpoints are at /api, health check at /api/health." });
-});
+const frontendDistDir = path.join(__dirname, "..", "..", "frontend", "dist");
+if (fs.existsSync(frontendDistDir)) {
+  app.use(express.static(frontendDistDir));
+}
 
 app.get("/api/health", (req, res) => {
   res.json({ success: true, message: "Server is running", timestamp: new Date().toISOString() });
+});
+
+app.get("*", (req, res, next) => {
+  if (req.path.startsWith("/api") || req.path.startsWith("/uploads")) {
+    return next();
+  }
+  if (fs.existsSync(frontendDistDir)) {
+    return res.sendFile(path.join(frontendDistDir, "index.html"));
+  }
+  res.json({ success: true, message: "Welcome to XAVI API. API endpoints are at /api, health check at /api/health." });
 });
 
 

@@ -1,32 +1,33 @@
-# Build stage
-FROM node:20-alpine AS builder
-
-WORKDIR /app
-
-# Copy backend package files first for caching layers
-COPY backend/package*.json ./backend/
-
-WORKDIR /app/backend
+# Build stage for Frontend
+FROM node:20-alpine AS frontend-builder
+WORKDIR /app/frontend
+COPY frontend/package*.json ./
 RUN npm ci
+COPY frontend/ ./
+RUN npm run build
 
-# Copy backend source code and tsconfig
+# Build stage for Backend
+FROM node:20-alpine AS backend-builder
+WORKDIR /app/backend
+COPY backend/package*.json ./
+RUN npm ci
 COPY backend/tsconfig.json ./
 COPY backend/src ./src
-
-# Build the TypeScript project
 RUN npm run build
 
 # Production stage
 FROM node:20-alpine AS runner
-
 WORKDIR /app/backend
 
 # Copy package files and install only production dependencies
 COPY backend/package*.json ./
 RUN npm ci --only=production
 
-# Copy compiled assets from builder
-COPY --from=builder /app/backend/dist ./dist
+# Copy compiled backend assets
+COPY --from=backend-builder /app/backend/dist ./dist
+
+# Copy compiled frontend assets
+COPY --from=frontend-builder /app/frontend/dist ../frontend/dist
 
 # Create empty uploads folder
 RUN mkdir -p uploads
